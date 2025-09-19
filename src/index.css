@@ -1,73 +1,150 @@
-/* 1️⃣ Import Google Fonts FIRST */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-/* 2️⃣ Tailwind directives */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* 3️⃣ Global Styles */
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+}
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f8fafc;
-  color: #1f2937;
-  line-height: 1.6;
-  scroll-behavior: smooth;
-  margin: 0;
-  padding: 0;
+    font-family: "DM Sans", system-ui, sans-serif;
+    background-color: #000000;
+    color: #feefdd;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
-
-h1,h2,h3,h4,h5,h6 {
-  color: #111827;
-  font-weight: 700;
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+    line-height: 1.2;
 }
-
-a {
-  text-decoration: none;
-  color: inherit;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
 }
-
+::-webkit-scrollbar-track {
+    background: #201e1f;
+}
+::-webkit-scrollbar-thumb {
+    background: #50b2c0;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #50b2c0;
+}
+/* Firefox scrollbar */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #50b2c0 #201e1f;
+}
+/* Button defaults */
 button {
-  cursor: pointer;
+    cursor: pointer;
+    outline: none;
+    border: none;
 }
-
-.container {
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+/* Link defaults */
+a {
+    text-decoration: none;
+    color: inherit;
 }
-
-.hero-gradient-bg {
-  background: linear-gradient(to bottom, #eff6ff, #ffffff);
+/* Focus styles for accessibility */
+button:focus,
+a:focus {
+    outline: 2px solid #50b2c0;
+    outline-offset: 2px;
 }
-
-.cta-gradient-bg {
-  background: linear-gradient(to right, #3b82f6, #2563eb);
+/* Custom animations */
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
-
-.card {
-  background-color: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 10px 15px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
+@keyframes pulse-slow {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+.animate-float {
+    animation: float 6s ease-in-out infinite;
 }
-
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s forwards;
+.animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
 }
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Utility classes */
+.brutalist-border {
+    border: 2px solid currentColor;
+}
+.brutalist-shadow {
+    box-shadow: 4px 4px 0px rgba(255, 64, 0, 0.3);
+}
+.brutalist-shadow:hover {
+    box-shadow: 6px 6px 0px rgba(255, 64, 0, 0.5);
+}
+/* Selection styling */
+::selection {
+    background-color: #50b2c0;
+    color: #201e1f;
+}
+::-moz-selection {
+    background-color: #50b2c0;
+    color: #201e1f;
+}
+/* Loading states */
+.loading-skeleton {
+    background: linear-gradient(90deg, #201e1f 25%, #2a2827 50%, #201e1f 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+/* Responsive text sizes */
+@media (max-width: 640px) {
+    .text-brutalist-xl {
+        font-size: 3rem;
+        line-height: 1;
+    }
+    .text-brutalist-lg {
+        font-size: 2rem;
+        line-height: 1.1;
+    }
+}
+/* High contrast for accessibility */
+@media (prefers-contrast: high) {
+    body {
+        background-color: #000000;
+        color: #ffffff;
+    }
+    .bg-background-primary {
+        background-color: #000000 !important;
+    }
+    .text-text-primary {
+        color: #ffffff !important;
+    }
 }

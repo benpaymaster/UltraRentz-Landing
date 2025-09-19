@@ -1,0 +1,32 @@
+[
+  {
+    "videoTitle": "UltraRentz Platform Demo",
+    "videoType": "demo",
+    "videoDescription": "Complete walkthrough of depositing and managing rent with URZ tokens",
+    "videoDate": "2025-09-18T10:00:00Z",
+    "duration": "8:32",
+    "thumbnail": "/thumbnails/platform-demo.jpg",
+    "category": "product",
+    "tags": ["demo", "platform", "urz-token"]
+  },
+  {
+    "videoTitle": "4-of-6 Multisig Security Explained",
+    "videoType": "explainer",
+    "videoDescription": "How our multisignature approval process protects tenant and landlord funds",
+    "videoDate": "2025-09-15T14:30:00Z",
+    "duration": "5:47",
+    "thumbnail": "/thumbnails/multisig-explained.jpg",
+    "category": "security",
+    "tags": ["multisig", "security", "escrow"]
+  },
+  {
+    "videoTitle": "DAO Governance Tutorial",
+    "videoType": "tutorial",
+    "videoDescription": "Learn how to participate in dispute resolution through our DAO",
+    "videoDate": "2025-09-12T16:00:00Z",
+    "duration": "6:21",
+    "thumbnail": "/thumbnails/dao-tutorial.jpg",
+    "category": "governance",
+    "tags": ["dao", "governance", "tutorial"]
+  }
+]

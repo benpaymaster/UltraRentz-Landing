@@ -1,0 +1,29 @@
+[
+  {
+    "id": "getting-started",
+    "title": "Getting Started with UltraRentz",
+    "category": "basics",
+    "description": "Complete guide to setting up your first rent deposit escrow",
+    "content": "Step-by-step tutorial content...",
+    "tags": ["tutorial", "setup", "beginner"],
+    "lastUpdated": "2025-09-18"
+  },
+  {
+    "id": "urz-token-integration",
+    "title": "Integrate URZ Token in Your App",
+    "category": "development",
+    "description": "Technical guide for developers to integrate URZ tokens",
+    "content": "Developer documentation...",
+    "tags": ["development", "api", "urz-token"],
+    "lastUpdated": "2025-09-15"
+  },
+  {
+    "id": "multisig-escrow",
+    "title": "Understanding 4-of-6 Multisig Escrow",
+    "category": "security",
+    "description": "Deep dive into our multisignature security model",
+    "content": "Technical explanation...",
+    "tags": ["security", "multisig", "escrow"],
+    "lastUpdated": "2025-09-10"
+  }
+]

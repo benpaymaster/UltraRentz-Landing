@@ -1,0 +1,35 @@
+[
+  {
+    "id": "launch-update",
+    "title": "UltraRentz Launch Update",
+    "excerpt": "Learn about the new features and pilot program.",
+    "content": "Full blog post content about launch...",
+    "author": "UltraRentz Team",
+    "publishDate": "2025-09-18",
+    "category": "announcement",
+    "tags": ["launch", "pilot", "update"],
+    "readTime": "3 min read"
+  },
+  {
+    "id": "pay-rent-urz-tokens",
+    "title": "How to Pay Rent with URZ Tokens",
+    "excerpt": "Step-by-step guide for tenants and landlords.",
+    "content": "Tutorial content for payment process...",
+    "author": "Dev Team",
+    "publishDate": "2025-09-15",
+    "category": "tutorial",
+    "tags": ["payment", "urz-token", "guide"],
+    "readTime": "5 min read"
+  },
+  {
+    "id": "dao-dispute-resolution",
+    "title": "DAO Dispute Resolution Explained",
+    "excerpt": "Fair and transparent dispute handling.",
+    "content": "Explanation of DAO governance...",
+    "author": "Legal Team",
+    "publishDate": "2025-09-12",
+    "category": "governance",
+    "tags": ["dao", "disputes", "governance"],
+    "readTime": "4 min read"
+  }
+]
