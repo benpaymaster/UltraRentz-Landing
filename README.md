@@ -20,10 +20,10 @@ A clean, modern, and responsive landing page for **UltraRentz** – a decentrali
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React 18
-- **Styling:** Tailwind CSS 3
+- **Frontend:** Nextjs
+- **Styling:** Tailwind CSS 4
 - **Animations:** Framer Motion
-- **Build Tool:** Vite
+- **CSS Libray:** Shadcn
 - **Language:** TypeScript
 
 ---
@@ -32,14 +32,13 @@ A clean, modern, and responsive landing page for **UltraRentz** – a decentrali
 
 ```
 UltraRentz-Landing/
-├─ src/
-│  ├─ components/   # Navbar, Hero, Features, HowItWorks, Developers, Videos, Blog, CTA, Footer
-│  ├─ pages/        # Landing.tsx
-│  ├─ App.tsx
-│  ├─ index.css
-│  └─ main.tsx
+├─ app/
+│  ├─ layout.tsx
+│  ├─ pages.tsx
+│  ├─ global.css
+├─components/   # Navbar, Hero, Features, HowItWorks, Developers, Videos, Blog, CTA, Footer
 ├─ package.json
-├─ vite.config.ts
+├─ next.config.ts
 └─ README.md
 ```
 
@@ -68,7 +67,7 @@ npm run dev
 
 4. **Open in browser:**
 
-The development server will open automatically, or go to `http://localhost:5173`.
+The development server will open automatically, or go to `http://localhost:3000`.
 
 ---
 
