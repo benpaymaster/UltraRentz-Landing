@@ -7,6 +7,7 @@ export async function submitWaitlist(formData: FormData) {
   const role = formData.get('role') as string;
   const propertyDetails = formData.get('propertyDetails') as string;
   const referralCode = formData.get('referralCode') as string | null;
+  const origin = formData.get('origin') as string | null;
 
   if (!email || !role) {
     return { error: 'Email and Role are required.' };
@@ -52,10 +53,8 @@ export async function submitWaitlist(formData: FormData) {
       return { error: 'Failed to join waitlist. Please try again.' };
     }
 
-    // Generate referral link - use VERCEL_URL for deployments, fallback to APP_URL or localhost
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-      || 'http://localhost:3000';
+    // Generate referral link using the origin from the client request
+    const baseUrl = origin || 'http://localhost:3000';
     const referralLink = `${baseUrl}?ref=${data.referral_code}`;
 
     return {

@@ -33,6 +33,9 @@ export default function CTA() {
     // Append role manually since it's a state, not a simple input (visual buttons)
     formData.append("role", role);
 
+    // Append the current origin for dynamic referral link generation
+    formData.append("origin", window.location.origin);
+
     // Append referral code if present in URL
     if (urlReferralCode) {
       formData.append("referralCode", urlReferralCode);
