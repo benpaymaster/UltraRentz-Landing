@@ -52,8 +52,10 @@ export async function submitWaitlist(formData: FormData) {
       return { error: 'Failed to join waitlist. Please try again.' };
     }
 
-    // Generate referral link
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Generate referral link - use VERCEL_URL for deployments, fallback to APP_URL or localhost
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+      || 'http://localhost:3000';
     const referralLink = `${baseUrl}?ref=${data.referral_code}`;
 
     return {
