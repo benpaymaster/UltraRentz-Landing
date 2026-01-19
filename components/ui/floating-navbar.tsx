@@ -80,6 +80,9 @@ export const FloatingNav = ({
               "relativetext-neutral-50 items-center flex space-x-1 font-semibold dark:hover:text-neutral-300 hover:text-blue-400 text-white"
             )}
           >
+            {navItem.icon && (
+              <span className="block sm:hidden">{navItem.icon}</span>
+            )}
             <span className="hidden sm:block text-md">{navItem.name}</span>
           </Link>
         ))}
