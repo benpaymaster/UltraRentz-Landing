@@ -2,12 +2,12 @@ import Blog from "@/components/Blog";
 import CTA from "@/components/CTA";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
+import Glossary from "@/components/Glossary";
 import { Hero } from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import Tutorials from "@/components/Tutorials";
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import Image from "next/image";
-import { House, Layers, Workflow, PlayCircle, FileText, Rocket, ShieldCheck, Coins } from "lucide-react";
+import { Layers, Workflow, PlayCircle, FileText, Rocket, ShieldCheck, Coins, BookOpen } from "lucide-react";
 
 const navItems = [
   {
@@ -29,6 +29,11 @@ const navItems = [
     name: "Blog",
     link: "#blog",
     icon: <FileText className="w-4 h-4 text-white" />,
+  },
+  {
+    name: "Glossary",
+    link: "#glossary",
+    icon: <BookOpen className="w-4 h-4 text-white" />,
   },
   {
     name: "Trust",
@@ -56,6 +61,7 @@ export default function Home() {
       <HowItWorks />
       <Tutorials />
       <Blog/>
+      <Glossary/>
       <CTA/>
       <Footer/>
     </div>
