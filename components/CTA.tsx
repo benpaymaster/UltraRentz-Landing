@@ -625,7 +625,7 @@ export default function CTA() {
                           type="date"
                           value={renterForm.target_moving_date}
                           onChange={(e) => setRenterForm(prev => ({ ...prev, target_moving_date: e.target.value }))}
-                          className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition"
+                          className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 transition scheme-dark"
                         />
                       </div>
                       <div>
