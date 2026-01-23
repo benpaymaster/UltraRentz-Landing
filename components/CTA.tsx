@@ -56,6 +56,8 @@ export default function CTA() {
     }
   }, []);
 
+  const totalSteps = 3;
+
   const handleCheckboxChange = (
     field: 'biggest_headaches' | 'biggest_rental_fears',
     value: string,
@@ -80,6 +82,12 @@ export default function CTA() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Only submit on the final step
+    if (step < totalSteps) {
+      return;
+    }
+
     setStatus("loading");
     setErrorMessage("");
 
@@ -158,8 +166,6 @@ export default function CTA() {
     }
   };
 
-  const totalSteps = role === "landlord" ? 3 : 3;
-
   const canProceed = () => {
     if (role === "landlord") {
       if (step === 1) return landlordForm.email && landlordForm.phone_number && landlordForm.landlord_type && landlordForm.portfolio_size;
@@ -169,6 +175,13 @@ export default function CTA() {
       if (step === 1) return renterForm.email && renterForm.phone_number && renterForm.desired_location;
       if (step === 2) return renterForm.employment_type;
       return true;
+    }
+  };
+
+  // Prevent Enter key from submitting form on non-final steps
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && step < totalSteps) {
+      e.preventDefault();
     }
   };
 
@@ -337,7 +350,7 @@ export default function CTA() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
           <AnimatePresence mode="wait">
             {/* LANDLORD FORMS */}
             {role === "landlord" && (
