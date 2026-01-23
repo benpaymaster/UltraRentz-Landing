@@ -20,11 +20,11 @@ const navItems = [
     link: "#how-it-works",
     icon: <Workflow className="w-4 h-4 text-white" />,
   },
-  {
-    name: "Tutorials",
-    link: "#turorials",
-    icon: <PlayCircle className="w-4 h-4 text-white" />,
-  },
+  // {
+  //   name: "Tutorials",
+  //   link: "#turorials",
+  //   icon: <PlayCircle className="w-4 h-4 text-white" />,
+  // },
   {
     name: "Blog",
     link: "#blog",
@@ -59,7 +59,7 @@ export default function Home() {
       <Hero />
       <Features />
       <HowItWorks />
-      <Tutorials />
+      {/* <Tutorials /> */}
       <Blog/>
       <Glossary/>
       <CTA/>
