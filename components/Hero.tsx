@@ -22,12 +22,11 @@ export function Hero() {
           Stop waiting 30+ days for your deposit return. Get fair, secure access
           to your funds, faster.
         </TextAnimate>
-        <Link
-          href="#cta"
-          className="mt-8 px-10 py-4 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:scale-105 transform transition duration-300 cursor-pointer animate-fade-in-up"
-        >
-          Start Protecting & Earning Now
+        <Link className="mt-8 px-10 py-4 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:scale-105 transform transition duration-300 cursor-pointer animate-fade-in-up" href="/admin">
+
+          See waitlist dashboard
         </Link>
+
       </div>
     </div>
   );
