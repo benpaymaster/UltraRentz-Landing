@@ -5,9 +5,10 @@ import Footer from "@/components/Footer";
 import Glossary from "@/components/Glossary";
 import { Hero } from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
+import Team from "@/components/Team";
 import Tutorials from "@/components/Tutorials";
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import { Layers, Workflow, PlayCircle, FileText, Rocket, ShieldCheck, Coins, BookOpen } from "lucide-react";
+import { Layers, Workflow, PlayCircle, FileText, Rocket, ShieldCheck, Coins, BookOpen, Users } from "lucide-react";
 
 const navItems = [
   {
@@ -36,6 +37,11 @@ const navItems = [
     icon: <BookOpen className="w-4 h-4 text-white" />,
   },
   {
+    name: "Team",
+    link: "#team",
+    icon: <Users className="w-4 h-4 text-white" />,
+  },
+  {
     name: "Trust",
     link: "/trust",
     icon: <ShieldCheck className="w-4 h-4 text-white" />,
@@ -62,6 +68,7 @@ export default function Home() {
       {/* <Tutorials /> */}
       <Blog/>
       <Glossary/>
+      <Team/>
       <CTA/>
       <Footer/>
     </div>

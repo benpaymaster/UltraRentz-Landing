@@ -80,14 +80,7 @@ export default function CTA() {
     }
   };
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    // Only submit on the final step
-    if (step < totalSteps) {
-      return;
-    }
-
+  async function handleSubmit() {
     setStatus("loading");
     setErrorMessage("");
 
@@ -175,13 +168,6 @@ export default function CTA() {
       if (step === 1) return renterForm.email && renterForm.phone_number && renterForm.desired_location;
       if (step === 2) return renterForm.employment_type;
       return true;
-    }
-  };
-
-  // Prevent Enter key from submitting form on non-final steps
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && step < totalSteps) {
-      e.preventDefault();
     }
   };
 
@@ -350,7 +336,7 @@ export default function CTA() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
+        <div className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
           <AnimatePresence mode="wait">
             {/* LANDLORD FORMS */}
             {role === "landlord" && (
@@ -509,7 +495,11 @@ export default function CTA() {
                               name="has_pms"
                               value={opt}
                               checked={landlordForm.has_pms === opt}
-                              onChange={(e) => setLandlordForm(prev => ({ ...prev, has_pms: e.target.value }))}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                setLandlordForm(prev => ({ ...prev, has_pms: e.target.value }));
+                              }}
+                              onClick={(e) => e.stopPropagation()}
                               className="w-4 h-4 text-blue-500 focus:ring-blue-500"
                             />
                             <span className="text-gray-300 capitalize">{opt}</span>
@@ -795,7 +785,8 @@ export default function CTA() {
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={status === "loading"}
                 className={`px-8 py-3 rounded-xl font-semibold flex items-center gap-2 transition disabled:opacity-70 disabled:cursor-not-allowed ${
                   role === "landlord"
@@ -814,7 +805,7 @@ export default function CTA() {
               </button>
             )}
           </div>
-        </form>
+        </div>
       </div>
     </section>
   );

@@ -35,6 +35,25 @@ interface WaitlistData {
   biggest_rental_fears?: string[];
 }
 
+export async function fetchWaitlist() {
+  try {
+    const { data, error } = await supabase
+      .from('waitlist')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase Error:', error);
+      return { error: 'Failed to fetch waitlist data.' };
+    }
+
+    return { data: data || [] };
+  } catch (err) {
+    console.error('Server Action Error:', err);
+    return { error: 'Something went wrong.' };
+  }
+}
+
 export async function submitWaitlist(formData: FormData) {
   const email = formData.get('email') as string;
   const role = formData.get('role') as 'landlord' | 'renter';
