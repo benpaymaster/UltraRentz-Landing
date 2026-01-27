@@ -15,7 +15,7 @@ export function Hero() {
         </h1>
 
         <div className="w-full text-white text-3xl md:text-4xl lg:text-6xl font-extrabold text-center animate-fade-in-up">
-          Protect. Monetise. Resolve Disputes in Days, Not Months.
+          Protect. Monetise. Resolve.
         </div>
 
         <TextAnimate className="text-blue-200 font-semibold text-center max-w-2xl md:text-2xl mt-4 px-16 md:px-2">
