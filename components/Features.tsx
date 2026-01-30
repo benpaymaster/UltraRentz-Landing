@@ -13,7 +13,7 @@ const features = [
   },
   {
     title: "Transparent Process",
-    description: "Every step logged on-chain for full visibility.",
+    description: "Every step legally recorded for full visibility.",
   },
   {
     title: "Fast Dispute Resolution",

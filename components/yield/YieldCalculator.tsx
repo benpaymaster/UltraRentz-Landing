@@ -150,7 +150,7 @@ export default function YieldCalculator() {
                <div className="mt-10 p-4 bg-green-900/10 border border-green-500/20 rounded-xl flex gap-3">
                   <Info className="w-5 h-5 text-green-400 shrink-0" />
                   <p className="text-xs text-green-200">
-                     You could earn an extra <span className="font-bold text-white">${Math.round(earningsDiff).toLocaleString()}</span> per year just by switching to on-chain deposits.
+                     You could earn an extra <span className="font-bold text-white">${Math.round(earningsDiff).toLocaleString()}</span> per year just by switching to UltraRentz deposits.
                   </p>
                </div>
             </div>
