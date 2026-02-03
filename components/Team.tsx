@@ -13,14 +13,15 @@ const teamMembers = [
   },
   {
     name: "Kehinde Fagbenro",
-    role: "Tech Dev Team Founding Engineer",
+    role: "Fullstack web3 Engineer",
     image: "../kenny.jpg",
-    bio: "Kehinde is a skilled frontend engineer specialising in building performant, accessible interfaces for Web3 applications. With strong expertise in React, Next.js, and wallet integration libraries, he bridges the gap between decentralised protocols and intuitive user experiences. At UltraRentz, Kehinde is responsible for crafting the tenant and landlord-facing dashboards—ensuring that interacting with smart contract escrow feels as seamless as any modern fintech product.",
+    
+    bio: "Kehinde is a skilled Full-Stack Web3 Engineer specialising in building secure, performant, and accessible decentralised applications. He works across the stack with React and Next.js on the frontend, and has working knowledge of Web3 technologies including Solidity, smart contracts, and wallet integration libraries. At UltraRentz, Kehinde is responsible for building and maintaining tenant- and landlord-facing dashboards, ensuring that interacting with smart-contract-based escrow systems feels as seamless and intuitive as using any modern fintech product.",
     linkedin: null as string | null,
   },
   {
     name: "Jason Aw",
-    role: "Tech Dev Team Founding Engineer",
+    role: "Contributor",
     // TODO: Replace with actual image path, e.g. "/team/jason.jpg"
     image: "../jason.jpg",
     bio: "Jason is a veteran web3 engineer with 3 years of experience building secure, scalable decentralized systems. A Polkadot Academy Alumni, he specializes in bridging complex blockchain architecture with real-world utility. At UltraRentz, Jason is leveraging his full-stack skills to build the UK’s first compliant digital escrow layer for the £5.4bn rental deposit market—transforming a legacy legal process into a high-yield, automated financial asset.",
