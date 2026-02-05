@@ -13,20 +13,20 @@ const teamMembers = [
   },
   {
     name: "Kehinde Fagbenro",
-    role: "Fullstack web3 Engineer",
+    role: "Contributor",
     image: "../kenny.jpg",
     
     bio: "Kehinde is a skilled Full-Stack Web3 Engineer specialising in building secure, performant, and accessible decentralised applications. He works across the stack with React and Next.js on the frontend, and has working knowledge of Web3 technologies including Solidity, smart contracts, and wallet integration libraries. At UltraRentz, Kehinde is responsible for building and maintaining tenant- and landlord-facing dashboards, ensuring that interacting with smart-contract-based escrow systems feels as seamless and intuitive as using any modern fintech product.",
     linkedin: null as string | null,
   },
-  {
-    name: "Jason Aw",
-    role: "Contributor",
-    // TODO: Replace with actual image path, e.g. "/team/jason.jpg"
-    image: "../jason.jpg",
-    bio: "Jason is a veteran web3 engineer with 3 years of experience building secure, scalable decentralized systems. A Polkadot Academy Alumni, he specializes in bridging complex blockchain architecture with real-world utility. At UltraRentz, Jason is leveraging his full-stack skills to build the UK’s first compliant digital escrow layer for the £5.4bn rental deposit market—transforming a legacy legal process into a high-yield, automated financial asset.",
-    linkedin: null as string | null,
-  },
+  // {
+  //   name: "Jason Aw",
+  //   role: "Contributor",
+  //   // TODO: Replace with actual image path, e.g. "/team/jason.jpg"
+  //   image: "../jason.jpg",
+  //   bio: "Jason is a veteran web3 engineer with 3 years of experience building secure, scalable decentralized systems. A Polkadot Academy Alumni, he specializes in bridging complex blockchain architecture with real-world utility. At UltraRentz, Jason is leveraging his full-stack skills to build the UK’s first compliant digital escrow layer for the £5.4bn rental deposit market—transforming a legacy legal process into a high-yield, automated financial asset.",
+  //   linkedin: null as string | null,
+  // },
 ];
 
 export default function Team() {
@@ -44,7 +44,7 @@ export default function Team() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:flex gap-8">
           {teamMembers.map((member, index) => (
             <motion.div
               key={member.name}
@@ -52,7 +52,7 @@ export default function Team() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15, duration: 0.5 }}
-              className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-colors"
+              className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-colors mt-5 md:mt-0"
             >
               {/* Image placeholder */}
               <div className="w-28 h-28 mx-auto mb-5 rounded-full overflow-hidden bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border-2 border-gray-700 flex items-center justify-center">

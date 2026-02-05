@@ -54,6 +54,89 @@ export async function fetchWaitlist() {
   }
 }
 
+// ── Pilot Signups (simplified form) ──────────────────────────────────
+
+export async function fetchPilotSignups() {
+  try {
+    const { data, error } = await supabase
+      .from('pilot_signups')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase Error:', error);
+      return { error: 'Failed to fetch pilot signups.' };
+    }
+
+    return { data: data || [] };
+  } catch (err) {
+    console.error('Server Action Error:', err);
+    return { error: 'Something went wrong.' };
+  }
+}
+
+export async function submitPilotSignup(formData: FormData) {
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const role = formData.get('role') as 'landlord' | 'renter';
+  const universityName = formData.get('university_name') as string || 'University of Hertfordshire';
+  const gdprConsent = formData.get('gdpr_consent') === 'true';
+  const referralCode = formData.get('referralCode') as string | null;
+  const origin = formData.get('origin') as string | null;
+
+  if (!name || !email || !role) {
+    return { error: 'Name, email, and role are required.' };
+  }
+
+  if (!gdprConsent) {
+    return { error: 'You must agree to the UK GDPR consent to proceed.' };
+  }
+
+  try {
+    let referredBy = null;
+    if (referralCode) {
+      const { data: referrer } = await supabase
+        .from('pilot_signups')
+        .select('id')
+        .eq('referral_code', referralCode)
+        .single();
+
+      if (referrer) {
+        referredBy = referrer.id;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('pilot_signups')
+      .insert([{ name, email, role, university_name: universityName, gdpr_consent: gdprConsent, referred_by: referredBy }])
+      .select('id, position, referral_code')
+      .single();
+
+    if (error) {
+      console.error('Supabase Error:', error);
+      if (error.code === '23505') {
+        return { error: 'This email is already on the waitlist.' };
+      }
+      return { error: 'Failed to join the pilot. Please try again.' };
+    }
+
+    const baseUrl = origin || 'http://localhost:3000';
+    const referralLink = `${baseUrl}?ref=${data.referral_code}`;
+
+    return {
+      success: true,
+      position: data.position,
+      referralCode: data.referral_code,
+      referralLink,
+    };
+  } catch (err) {
+    console.error('Server Action Error:', err);
+    return { error: 'Something went wrong.' };
+  }
+}
+
+// ── Legacy Waitlist (detailed form - kept for historical data) ───────
+
 export async function submitWaitlist(formData: FormData) {
   const email = formData.get('email') as string;
   const role = formData.get('role') as 'landlord' | 'renter';

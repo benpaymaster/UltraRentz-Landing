@@ -1,9 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchWaitlist } from '@/app/actions';
+import { fetchWaitlist, fetchPilotSignups } from '@/app/actions';
 import Link from 'next/link';
 import { ArrowLeft, Users, Building2, Home, Share2, Search, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+
+interface PilotSignup {
+  id: string;
+  name: string;
+  email: string;
+  role: 'landlord' | 'renter';
+  university_name: string;
+  gdpr_consent: boolean;
+  referral_code: string;
+  referral_count: number;
+  position: number;
+  created_at: string;
+}
 
 interface WaitlistEntry {
   id: string;
@@ -91,8 +104,12 @@ function formatCurrency(amount: number | undefined | null): string {
   return `£${amount.toLocaleString()}`;
 }
 
+type DataView = 'pilot' | 'legacy';
+
 export default function AdminPage() {
+  const [dataView, setDataView] = useState<DataView>('pilot');
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
+  const [pilotEntries, setPilotEntries] = useState<PilotSignup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<TabFilter>('all');
@@ -104,11 +121,19 @@ export default function AdminPage() {
   async function loadData() {
     setLoading(true);
     setError('');
-    const result = await fetchWaitlist();
-    if (result.error) {
-      setError(result.error);
+    const [pilotResult, waitlistResult] = await Promise.all([
+      fetchPilotSignups(),
+      fetchWaitlist(),
+    ]);
+    if (pilotResult.error) {
+      setError(pilotResult.error);
     } else {
-      setEntries(result.data || []);
+      setPilotEntries(pilotResult.data || []);
+    }
+    if (waitlistResult.error && !pilotResult.error) {
+      setError(waitlistResult.error);
+    } else {
+      setEntries(waitlistResult.data || []);
     }
     setLoading(false);
   }
@@ -137,10 +162,30 @@ export default function AdminPage() {
       return aVal < bVal ? 1 : -1;
     });
 
-  const totalCount = entries.length;
-  const landlordCount = entries.filter(e => e.role === 'landlord').length;
-  const renterCount = entries.filter(e => e.role === 'renter').length;
-  const totalReferrals = entries.reduce((sum, e) => sum + (e.referral_count || 0), 0);
+  // Pilot signups filtering
+  const filteredPilot = pilotEntries
+    .filter(e => activeTab === 'all' || e.role === activeTab)
+    .filter(e => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        e.name.toLowerCase().includes(q) ||
+        e.email.toLowerCase().includes(q) ||
+        e.referral_code.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      const aVal = a[sortField] ?? 0;
+      const bVal = b[sortField] ?? 0;
+      if (sortDir === 'asc') return aVal > bVal ? 1 : -1;
+      return aVal < bVal ? 1 : -1;
+    });
+
+  const activeEntries = dataView === 'pilot' ? pilotEntries : entries;
+  const totalCount = activeEntries.length;
+  const landlordCount = activeEntries.filter(e => e.role === 'landlord').length;
+  const renterCount = activeEntries.filter(e => e.role === 'renter').length;
+  const totalReferrals = activeEntries.reduce((sum, e) => sum + (e.referral_count || 0), 0);
 
   function toggleSort(field: typeof sortField) {
     if (sortField === field) {
@@ -179,8 +224,28 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        {/* Data View Toggle */}
+        <div className="flex bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden w-fit mb-6">
+          <button
+            onClick={() => setDataView('pilot')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              dataView === 'pilot' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            }`}
+          >
+            Pilot Signups
+          </button>
+          <button
+            onClick={() => setDataView('legacy')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              dataView === 'legacy' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            }`}
+          >
+            Legacy Waitlist
+          </button>
+        </div>
+
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
           <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
               <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -188,13 +253,13 @@ export default function AdminPage() {
             </div>
             <div className="text-xl sm:text-2xl font-bold">{totalCount}</div>
           </div>
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
+          {/* <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
               <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="truncate">Landlords</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-blue-400">{landlordCount}</div>
-          </div>
+          </div> */}
           <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
               <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -214,7 +279,7 @@ export default function AdminPage() {
         {/* Tabs & Search */}
         <div className="flex flex-col gap-3 sm:gap-4 mb-6">
           <div className="flex bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden w-full sm:w-fit">
-            {(['all', 'landlord', 'renter'] as TabFilter[]).map(tab => (
+            {(['all', /* 'landlord', */ 'renter'] as TabFilter[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -224,7 +289,7 @@ export default function AdminPage() {
                     : 'text-gray-400 hover:text-white hover:bg-gray-800'
                 }`}
               >
-                {tab === 'all' ? `All (${totalCount})` : tab === 'landlord' ? `Landlords (${landlordCount})` : `Renters (${renterCount})`}
+                {tab === 'all' ? `All (${totalCount})` : /* tab === 'landlord' ? `Landlords (${landlordCount})` : */ `Renters (${renterCount})`}
               </button>
             ))}
           </div>
@@ -281,7 +346,117 @@ export default function AdminPage() {
           </div>
         )}
 
-        {!loading && filtered.length > 0 && (
+        {/* Pilot Signups View */}
+        {dataView === 'pilot' && !loading && filteredPilot.length > 0 && (
+          <>
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {filteredPilot.map(entry => (
+                <div key={entry.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-gray-500 text-xs">#{entry.position}</span>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                          entry.role === 'landlord' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
+                        }`}>
+                          {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
+                        </span>
+                      </div>
+                      <p className="font-medium text-sm">{entry.name}</p>
+                      <p className="text-gray-400 text-xs truncate">{entry.email}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="col-span-2">
+                      <span className="text-gray-500">University:</span>
+                      <span className="ml-1 text-gray-300">{entry.university_name}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Code:</span>
+                      <code className="ml-1 bg-gray-800 px-1.5 py-0.5 rounded text-xs">{entry.referral_code}</code>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Referrals:</span>
+                      <span className="ml-1 text-purple-400 font-medium">{entry.referral_count}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">GDPR:</span>
+                      <span className={`ml-1 ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
+                        {entry.gdpr_consent ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Joined:</span>
+                      <span className="ml-1 text-gray-300">{formatDate(entry.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-800 text-gray-400 text-left">
+                    <th className="py-3 px-3 font-medium cursor-pointer hover:text-white" onClick={() => toggleSort('position')}>
+                      # <SortIcon field="position" />
+                    </th>
+                    <th className="py-3 px-3 font-medium">Name</th>
+                    <th className="py-3 px-3 font-medium">Email</th>
+                    <th className="py-3 px-3 font-medium">Role</th>
+                    <th className="py-3 px-3 font-medium">University</th>
+                    <th className="py-3 px-3 font-medium">GDPR</th>
+                    <th className="py-3 px-3 font-medium">Referral Code</th>
+                    <th className="py-3 px-3 font-medium cursor-pointer hover:text-white" onClick={() => toggleSort('referral_count')}>
+                      Referrals <SortIcon field="referral_count" />
+                    </th>
+                    <th className="py-3 px-3 font-medium cursor-pointer hover:text-white" onClick={() => toggleSort('created_at')}>
+                      Joined <SortIcon field="created_at" />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPilot.map(entry => (
+                    <tr key={entry.id} className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors">
+                      <td className="py-3 px-3 text-gray-400">{entry.position}</td>
+                      <td className="py-3 px-3 font-medium">{entry.name}</td>
+                      <td className="py-3 px-3 text-gray-300">{entry.email}</td>
+                      <td className="py-3 px-3">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                          entry.role === 'landlord' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
+                        }`}>
+                          {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-gray-300 text-xs">{entry.university_name}</td>
+                      <td className="py-3 px-3">
+                        <span className={`text-xs ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
+                          {entry.gdpr_consent ? 'Consented' : 'No'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <code className="text-xs bg-gray-800 px-2 py-0.5 rounded">{entry.referral_code}</code>
+                      </td>
+                      <td className="py-3 px-3 text-gray-400">{entry.referral_count}</td>
+                      <td className="py-3 px-3 text-gray-400">{formatDate(entry.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {dataView === 'pilot' && !loading && filteredPilot.length === 0 && (
+          <div className="text-center py-20 text-gray-500">
+            {searchQuery ? 'No results match your search.' : 'No pilot signups yet.'}
+          </div>
+        )}
+
+        {/* Legacy Waitlist View */}
+        {dataView === 'legacy' && !loading && filtered.length > 0 && (
           <>
             {/* Mobile Card View */}
             <div className="md:hidden space-y-3">
@@ -331,10 +506,16 @@ export default function AdminPage() {
           </>
         )}
 
+        {dataView === 'legacy' && !loading && filtered.length === 0 && (
+          <div className="text-center py-20 text-gray-500">
+            {searchQuery ? 'No results match your search.' : 'No entries yet.'}
+          </div>
+        )}
+
         {/* Count */}
-        {!loading && filtered.length > 0 && (
+        {!loading && (dataView === 'pilot' ? filteredPilot.length : filtered.length) > 0 && (
           <div className="mt-4 text-sm text-gray-500">
-            Showing {filtered.length} of {totalCount} entries
+            Showing {dataView === 'pilot' ? filteredPilot.length : filtered.length} of {totalCount} entries
           </div>
         )}
       </div>
