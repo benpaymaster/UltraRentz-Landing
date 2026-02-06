@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Glossary from "@/components/Glossary";
 import { Hero } from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
+import PublicWaitlist from "@/components/PublicWaitlist";
 import Team from "@/components/Team";
 import Tutorials from "@/components/Tutorials";
 import { FloatingNav } from "@/components/ui/floating-navbar";
@@ -69,6 +70,7 @@ export default function Home() {
       <Blog/>
       <Glossary/>
       <Team/>
+      <PublicWaitlist/>
       <CTA/>
       <Footer/>
     </div>

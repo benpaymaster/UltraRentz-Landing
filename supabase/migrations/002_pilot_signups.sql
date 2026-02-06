@@ -7,13 +7,33 @@ CREATE TABLE IF NOT EXISTS pilot_signups (
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('landlord', 'renter')),
-  university_name TEXT NOT NULL DEFAULT 'University of Hertfordshire',
+  university_name TEXT DEFAULT NULL,
   gdpr_consent BOOLEAN NOT NULL DEFAULT false,
   referral_code TEXT UNIQUE NOT NULL,
   referred_by UUID REFERENCES pilot_signups(id) ON DELETE SET NULL,
   position INTEGER,
   referral_count INTEGER DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  -- Landlord segmentation fields (The "Who")
+  landlord_type TEXT CHECK (landlord_type IN ('individual', 'limited_company', 'letting_agent', 'institutional_pbsa')),
+  portfolio_size TEXT CHECK (portfolio_size IN ('1', '2-5', '6-20', '20+')),
+  property_location TEXT,
+
+  -- Current pain points (The "Why")
+  current_deposit_scheme TEXT CHECK (current_deposit_scheme IN ('custodial', 'insurance_backed', 'none_halls')),
+  deposit_scheme_provider TEXT CHECK (deposit_scheme_provider IN ('mydeposit', 'tdp', 'dps', 'none')),
+  biggest_headaches TEXT[],
+  has_pms BOOLEAN,
+
+  -- Compliance & Technical (The "How")
+  prs_db_status TEXT CHECK (prs_db_status IN ('yes', 'no', 'in_progress')),
+  web3_familiarity INTEGER CHECK (web3_familiarity >= 1 AND web3_familiarity <= 5),
+
+  -- Verification (The "Trust")
+  phone_number TEXT,
+  linkedin_website TEXT,
+  letter_of_intent BOOLEAN DEFAULT false
 );
 
 -- Indexes

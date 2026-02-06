@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { submitPilotSignup } from "@/app/actions";
-import { Loader2, CheckCircle, Building, User, Copy, Shield } from "lucide-react";
+import { Loader2, CheckCircle, Building, User, Copy, Shield, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { QRCodeSVG } from "qrcode.react";
 
-const PILOT_URL = "https://ultrarentz.vercel.app/#cta";
+// Landlord form steps
+const LANDLORD_STEPS = [
+  { id: 1, title: "Basic Info", description: "Your details" },
+  { id: 2, title: "Profile", description: "Landlord type" },
+  { id: 3, title: "Current Setup", description: "Pain points" },
+  { id: 4, title: "Compliance", description: "Technical" },
+];
 
 export default function CTA() {
   const [role, setRole] = useState<"landlord" | "renter" | null>(null);
@@ -21,6 +26,23 @@ export default function CTA() {
   const [referralCode, setReferralCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [urlReferralCode, setUrlReferralCode] = useState<string | null>(null);
+
+  // Landlord multi-step
+  const [landlordStep, setLandlordStep] = useState(1);
+
+  // Landlord-specific fields
+  const [landlordType, setLandlordType] = useState("");
+  const [portfolioSize, setPortfolioSize] = useState("");
+  const [propertyLocation, setPropertyLocation] = useState("");
+  const [currentDepositScheme, setCurrentDepositScheme] = useState("");
+  const [depositSchemeProvider, setDepositSchemeProvider] = useState("");
+  const [biggestHeadaches, setBiggestHeadaches] = useState<string[]>([]);
+  const [hasPms, setHasPms] = useState<boolean | null>(null);
+  const [prsDbStatus, setPrsDbStatus] = useState("");
+  const [web3Familiarity, setWeb3Familiarity] = useState(3);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [linkedinWebsite, setLinkedinWebsite] = useState("");
+  const [letterOfIntent, setLetterOfIntent] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -38,12 +60,32 @@ export default function CTA() {
     formData.append("name", name);
     formData.append("email", email);
     formData.append("role", role as string);
-    formData.append("university_name", universityName);
     formData.append("gdpr_consent", String(gdprConsent));
     formData.append("origin", window.location.origin);
 
+    // Renter gets university fields
+    if (role === "renter") {
+      formData.append("university_name", universityName);
+    }
+
     if (urlReferralCode) {
       formData.append("referralCode", urlReferralCode);
+    }
+
+    // Landlord-specific fields
+    if (role === "landlord") {
+      if (landlordType) formData.append("landlord_type", landlordType);
+      if (portfolioSize) formData.append("portfolio_size", portfolioSize);
+      if (propertyLocation) formData.append("property_location", propertyLocation);
+      if (currentDepositScheme) formData.append("current_deposit_scheme", currentDepositScheme);
+      if (depositSchemeProvider) formData.append("deposit_scheme_provider", depositSchemeProvider);
+      biggestHeadaches.forEach(h => formData.append("biggest_headaches", h));
+      if (hasPms !== null) formData.append("has_pms", String(hasPms));
+      if (prsDbStatus) formData.append("prs_db_status", prsDbStatus);
+      formData.append("web3_familiarity", String(web3Familiarity));
+      if (phoneNumber) formData.append("phone_number", phoneNumber);
+      if (linkedinWebsite) formData.append("linkedin_website", linkedinWebsite);
+      formData.append("letter_of_intent", String(letterOfIntent));
     }
 
     const result = await submitPilotSignup(formData);
@@ -114,7 +156,14 @@ export default function CTA() {
     }
   };
 
-  const canSubmit = name.trim() && email.trim() && gdprConsent;
+  // Validation for each landlord step
+  const canProceedStep1 = name.trim() && email.trim() && phoneNumber.trim();
+  const canProceedStep2 = landlordType && portfolioSize;
+  const canProceedStep3 = true; // Optional fields
+  const canProceedStep4 = gdprConsent && letterOfIntent;
+
+  // Renter validation
+  const canSubmitRenter = name.trim() && email.trim() && gdprConsent;
 
   // ── Success Screen ──────────────────────────────────────────────────
   if (status === "success") {
@@ -129,7 +178,7 @@ export default function CTA() {
             <div className="text-center mb-8">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-6" />
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                You're on the list!
+                You&apos;re on the list!
               </h2>
               {position && (
                 <motion.div
@@ -145,7 +194,7 @@ export default function CTA() {
                 </motion.div>
               )}
               <p className="text-gray-400 text-lg mb-8">
-                We'll be in touch shortly with your access keys.
+                We&apos;ll be in touch shortly with your access keys.
               </p>
             </div>
 
@@ -237,80 +286,57 @@ export default function CTA() {
             </motion.div>
           )}
 
-          <div className="max-w-md mx-auto mb-16">
-            {/* <button
+          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <button
               onClick={() => setRole("landlord")}
               className="group bg-gray-900/50 border border-gray-800 hover:border-blue-500/50 rounded-2xl p-8 text-left transition-all duration-300 hover:bg-gray-900/80"
             >
               <Building className="w-12 h-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-bold text-white mb-2">I'm a Landlord</h3>
+              <h3 className="text-xl font-bold text-white mb-2">I&apos;m a Landlord</h3>
               <p className="text-gray-400 text-sm">
                 Property owners, letting agents, and institutional landlords managing rentals.
               </p>
-            </button> */}
+            </button>
 
             <button
               onClick={() => setRole("renter")}
-              className="group w-full bg-gray-900/50 border border-gray-800 hover:border-green-500/50 rounded-2xl p-8 text-left transition-all duration-300 hover:bg-gray-900/80"
+              className="group bg-gray-900/50 border border-gray-800 hover:border-green-500/50 rounded-2xl p-8 text-left transition-all duration-300 hover:bg-gray-900/80"
             >
               <User className="w-12 h-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-bold text-white mb-2">I'm a Renter</h3>
+              <h3 className="text-xl font-bold text-white mb-2">I&apos;m a Renter</h3>
               <p className="text-gray-400 text-sm">
                 Students, professionals, and anyone looking to rent a property.
               </p>
             </button>
-          </div>
-
-          {/* QR Code Section */}
-          <div className="text-center">
-            <div className="inline-block bg-gray-900/50 border border-gray-800 rounded-2xl p-8">
-              <p className="text-gray-400 text-sm mb-4 font-medium">Scan to join the pilot</p>
-              <div className="bg-white p-4 rounded-xl inline-block">
-                <QRCodeSVG
-                  value={PILOT_URL}
-                  size={180}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  level="H"
-                  marginSize={0}
-                />
-              </div>
-              <p className="text-gray-500 text-xs mt-4">Point your camera at the code</p>
-            </div>
           </div>
         </div>
       </section>
     );
   }
 
-  // ── Simple Signup Form ──────────────────────────────────────────────
-  return (
-    <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+  // ── Renter Simple Form ──────────────────────────────────────────────
+  if (role === "renter") {
+    return (
+      <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-600/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="max-w-lg mx-auto relative z-10">
-        <div className="text-center mb-8">
-          <button
-            onClick={() => setRole(null)}
-            className="text-gray-500 hover:text-white text-sm mb-4 inline-flex items-center gap-1"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-            Change role
-          </button>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            {role === "landlord" ? "Landlord" : "Renter"} Pilot Signup
-          </h2>
-          <p className="text-gray-400">Join the UltraRentz pilot program</p>
-        </div>
-
-        <div className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key="signup-form"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-5"
+        <div className="max-w-lg mx-auto relative z-10">
+          <div className="text-center mb-8">
+            <button
+              onClick={() => setRole(null)}
+              className="text-gray-500 hover:text-white text-sm mb-4 inline-flex items-center gap-1"
             >
+              <ChevronLeft className="w-4 h-4" />
+              Change role
+            </button>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              Renter Pilot Signup
+            </h2>
+            <p className="text-gray-400">Join the UltraRentz pilot program</p>
+          </div>
+
+          <div className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
+            <div className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
                 <input
@@ -318,11 +344,7 @@ export default function CTA() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className={`w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition ${
-                    role === "landlord"
-                      ? "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                      : "focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                  }`}
+                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                   placeholder="Your full name"
                 />
               </div>
@@ -334,11 +356,7 @@ export default function CTA() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition ${
-                    role === "landlord"
-                      ? "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                      : "focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                  }`}
+                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                   placeholder="you@herts.ac.uk"
                 />
               </div>
@@ -348,11 +366,7 @@ export default function CTA() {
                 <select
                   value={universityName}
                   onChange={(e) => setUniversityName(e.target.value)}
-                  className={`w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition ${
-                    role === "landlord"
-                      ? "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                      : "focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                  }`}
+                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                 >
                   <option value="University of Hertfordshire">University of Hertfordshire</option>
                 </select>
@@ -364,11 +378,7 @@ export default function CTA() {
                   type="checkbox"
                   checked={gdprConsent}
                   onChange={(e) => setGdprConsent(e.target.checked)}
-                  className={`w-5 h-5 mt-0.5 rounded border-gray-600 ${
-                    role === "landlord"
-                      ? "text-blue-500 focus:ring-blue-500"
-                      : "text-green-500 focus:ring-green-500"
-                  }`}
+                  className="w-5 h-5 mt-0.5 rounded border-gray-600 text-green-500 focus:ring-green-500"
                 />
                 <span className="text-gray-300 text-sm">
                   I agree to be contacted regarding the UltraRentz Pilot in accordance with UK GDPR. *
@@ -378,17 +388,394 @@ export default function CTA() {
               {/* Privacy Blurb */}
               <div className="bg-gray-950/50 border border-gray-800/50 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                  <Shield className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                   <div className="text-xs text-gray-500 leading-relaxed">
                     <p className="font-medium text-gray-400 mb-1">Privacy & Data Protection</p>
                     <p>
                       UltraRentz is committed to protecting your data. By joining this waitlist, you agree that we may use your name and email address solely for the purpose of providing updates on the UltraRentz Pilot and platform launch. Your information is processed in accordance with UK GDPR. We do not share or sell your data to third parties. You can withdraw your consent or request data deletion at any time by contacting us at{" "}
-                      <a href="mailto:pilot@ultrarentz.com" className="text-blue-400 hover:underline">pilot@ultrarentz.com</a>.
+                      <a href="mailto:pilot@ultrarentz.com" className="text-green-400 hover:underline">pilot@ultrarentz.com</a>.
                     </p>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
+
+            {errorMessage && (
+              <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                {errorMessage}
+              </div>
+            )}
+
+            <div className="mt-8">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canSubmitRenter || status === "loading"}
+                className="w-full px-8 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed bg-green-600 hover:bg-green-500 text-white"
+              >
+                {status === "loading" ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Join the Pilot"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── Landlord Multi-Step Form ──────────────────────────────────────────────
+  return (
+    <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-lg mx-auto relative z-10">
+        <div className="text-center mb-8">
+          <button
+            onClick={() => { setRole(null); setLandlordStep(1); }}
+            className="text-gray-500 hover:text-white text-sm mb-4 inline-flex items-center gap-1"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Change role
+          </button>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            Landlord Pilot Signup
+          </h2>
+          <p className="text-gray-400">Join the UltraRentz pilot program</p>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            {LANDLORD_STEPS.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                    landlordStep >= step.id
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-800 text-gray-500"
+                  }`}
+                >
+                  {step.id}
+                </div>
+                {index < LANDLORD_STEPS.length - 1 && (
+                  <div
+                    className={`w-12 sm:w-16 h-0.5 mx-1 transition-all ${
+                      landlordStep > step.id ? "bg-blue-500" : "bg-gray-800"
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-blue-400 font-medium">{LANDLORD_STEPS[landlordStep - 1].title}</p>
+            <p className="text-xs text-gray-500">{LANDLORD_STEPS[landlordStep - 1].description}</p>
+          </div>
+        </div>
+
+        <div className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-2xl p-6 md:p-8">
+          <AnimatePresence mode="wait">
+            {/* Step 1: Basic Info */}
+            {landlordStep === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-5"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="Your full name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="you@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number *</label>
+                  <p className="text-xs text-gray-500 mb-2">Required for 2FA when using the app</p>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="+44 7700 900000"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">LinkedIn / Website</label>
+                  <p className="text-xs text-gray-500 mb-2">Optional - helps verify you as a professional landlord</p>
+                  <input
+                    type="url"
+                    value={linkedinWebsite}
+                    onChange={(e) => setLinkedinWebsite(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 2: Landlord Profile */}
+            {landlordStep === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-5"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Landlord Type *</label>
+                  <select
+                    value={landlordType}
+                    onChange={(e) => setLandlordType(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Select type...</option>
+                    <option value="individual">Individual</option>
+                    <option value="limited_company">Limited Company</option>
+                    <option value="letting_agent">Letting Agent</option>
+                    <option value="institutional_pbsa">Institutional (PBSA)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Portfolio Size *</label>
+                  <select
+                    value={portfolioSize}
+                    onChange={(e) => setPortfolioSize(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Select size...</option>
+                    <option value="1">1 Property</option>
+                    <option value="2-5">2–5 Properties</option>
+                    <option value="6-20">6–20 Properties</option>
+                    <option value="20+">20+ Properties</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Location of Properties</label>
+                  <input
+                    type="text"
+                    value={propertyLocation}
+                    onChange={(e) => setPropertyLocation(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="Postcode or region (e.g., AL10, Hatfield)"
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 3: Current Setup / Pain Points */}
+            {landlordStep === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-5"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Current Deposit Scheme</label>
+                  <select
+                    value={currentDepositScheme}
+                    onChange={(e) => setCurrentDepositScheme(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Select scheme...</option>
+                    <option value="custodial">Custodial</option>
+                    <option value="insurance_backed">Insurance-backed</option>
+                    <option value="none_halls">None (Halls)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Which deposit scheme provider do you use?</label>
+                  <select
+                    value={depositSchemeProvider}
+                    onChange={(e) => setDepositSchemeProvider(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Select provider...</option>
+                    <option value="mydeposit">MyDeposit</option>
+                    <option value="tdp">TDP (Tenancy Deposit Protection)</option>
+                    <option value="dps">DPS (Deposit Protection Service)</option>
+                    <option value="none">None / Not Applicable</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">Biggest Headaches</label>
+                  <div className="space-y-2">
+                    {[
+                      { value: "slow_deposit_release", label: "Slow deposit release" },
+                      { value: "dispute_resolution", label: "Dispute resolution" },
+                      { value: "admin_costs", label: "Admin costs" },
+                      { value: "lack_of_yield", label: "Lack of yield on deposits" },
+                    ].map((option) => (
+                      <label key={option.value} className="flex items-center gap-3 p-3 bg-gray-950 border border-gray-800 rounded-lg cursor-pointer hover:border-gray-700 transition">
+                        <input
+                          type="checkbox"
+                          checked={biggestHeadaches.includes(option.value)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBiggestHeadaches([...biggestHeadaches, option.value]);
+                            } else {
+                              setBiggestHeadaches(biggestHeadaches.filter(h => h !== option.value));
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500"
+                        />
+                        <span className="text-gray-300 text-sm">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">Do you use a Property Management System (PMS)?</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setHasPms(true)}
+                      className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium transition ${
+                        hasPms === true
+                          ? "bg-blue-500/20 border-blue-500 text-blue-400"
+                          : "bg-gray-950 border-gray-800 text-gray-400 hover:border-gray-700"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHasPms(false)}
+                      className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium transition ${
+                        hasPms === false
+                          ? "bg-blue-500/20 border-blue-500 text-blue-400"
+                          : "bg-gray-950 border-gray-800 text-gray-400 hover:border-gray-700"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 4: Compliance & GDPR */}
+            {landlordStep === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-5"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">PRS Database Status</label>
+                  <p className="text-xs text-gray-500 mb-2">Have you registered on the new 2026 Private Rented Sector Database?</p>
+                  <select
+                    value={prsDbStatus}
+                    onChange={(e) => setPrsDbStatus(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Select status...</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="in_progress">In Progress</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Web3 Familiarity</label>
+                  <p className="text-xs text-gray-500 mb-3">How comfortable are you with digital assets or automated smart contracts?</p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-gray-500 text-xs">Beginner</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={web3Familiarity}
+                      onChange={(e) => setWeb3Familiarity(parseInt(e.target.value))}
+                      className="flex-1 h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-gray-500 text-xs">Expert</span>
+                    <span className="text-blue-400 font-medium w-6 text-center">{web3Familiarity}</span>
+                  </div>
+                </div>
+
+                {/* Letter of Intent */}
+                <label className="flex items-start gap-3 p-4 bg-gray-950 border border-gray-800 rounded-xl cursor-pointer hover:border-gray-700 transition">
+                  <input
+                    type="checkbox"
+                    checked={letterOfIntent}
+                    onChange={(e) => setLetterOfIntent(e.target.checked)}
+                    className="w-5 h-5 mt-0.5 rounded border-gray-600 text-blue-500 focus:ring-blue-500"
+                  />
+                  <div className="text-sm">
+                    <span className="text-gray-300">
+                      I confirm my intent to participate in the UltraRentz Pilot and agree to provide a formal Letter of Intent upon request. *
+                    </span>
+                    <p className="text-gray-500 text-xs mt-1">
+                      This helps us verify serious participants for the pilot program.
+                    </p>
+                  </div>
+                </label>
+
+                {/* GDPR Consent */}
+                <label className="flex items-start gap-3 p-4 bg-gray-950 border border-gray-800 rounded-xl cursor-pointer hover:border-gray-700 transition">
+                  <input
+                    type="checkbox"
+                    checked={gdprConsent}
+                    onChange={(e) => setGdprConsent(e.target.checked)}
+                    className="w-5 h-5 mt-0.5 rounded border-gray-600 text-blue-500 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-300 text-sm">
+                    I agree to be contacted regarding the UltraRentz Pilot in accordance with UK GDPR. *
+                  </span>
+                </label>
+
+                {/* Privacy Blurb */}
+                <div className="bg-gray-950/50 border border-gray-800/50 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                    <div className="text-xs text-gray-500 leading-relaxed">
+                      <p className="font-medium text-gray-400 mb-1">Privacy & Data Protection</p>
+                      <p>
+                        UltraRentz is committed to protecting your data. By joining this waitlist, you agree that we may use your name and email address solely for the purpose of providing updates on the UltraRentz Pilot and platform launch. Your information is processed in accordance with UK GDPR. We do not share or sell your data to third parties. You can withdraw your consent or request data deletion at any time by contacting us at{" "}
+                        <a href="mailto:pilot@ultrarentz.com" className="text-blue-400 hover:underline">pilot@ultrarentz.com</a>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
           {errorMessage && (
@@ -397,26 +784,50 @@ export default function CTA() {
             </div>
           )}
 
-          <div className="mt-8">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!canSubmit || status === "loading"}
-              className={`w-full px-8 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed ${
-                role === "landlord"
-                  ? "bg-blue-600 hover:bg-blue-500 text-white"
-                  : "bg-green-600 hover:bg-green-500 text-white"
-              }`}
-            >
-              {status === "loading" ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Join the Pilot"
-              )}
-            </button>
+          {/* Navigation Buttons */}
+          <div className="mt-8 flex gap-3">
+            {landlordStep > 1 && (
+              <button
+                type="button"
+                onClick={() => setLandlordStep(s => s - 1)}
+                className="flex-1 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition bg-gray-800 hover:bg-gray-700 text-white"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Back
+              </button>
+            )}
+
+            {landlordStep < 4 ? (
+              <button
+                type="button"
+                onClick={() => setLandlordStep(s => s + 1)}
+                disabled={
+                  (landlordStep === 1 && !canProceedStep1) ||
+                  (landlordStep === 2 && !canProceedStep2) ||
+                  (landlordStep === 3 && !canProceedStep3)
+                }
+                className="flex-1 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-500 text-white"
+              >
+                Next
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!canProceedStep4 || status === "loading"}
+                className="flex-1 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-500 text-white"
+              >
+                {status === "loading" ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Join the Pilot"
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

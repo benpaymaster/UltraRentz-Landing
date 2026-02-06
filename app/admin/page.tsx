@@ -16,6 +16,19 @@ interface PilotSignup {
   referral_count: number;
   position: number;
   created_at: string;
+  // Landlord-specific fields
+  landlord_type?: string;
+  portfolio_size?: string;
+  property_location?: string;
+  current_deposit_scheme?: string;
+  deposit_scheme_provider?: string;
+  biggest_headaches?: string[];
+  has_pms?: boolean;
+  prs_db_status?: string;
+  web3_familiarity?: number;
+  phone_number?: string;
+  linkedin_website?: string;
+  letter_of_intent?: boolean;
 }
 
 interface WaitlistEntry {
@@ -245,7 +258,7 @@ export default function AdminPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
           <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
               <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -253,13 +266,13 @@ export default function AdminPage() {
             </div>
             <div className="text-xl sm:text-2xl font-bold">{totalCount}</div>
           </div>
-          {/* <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
+          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
               <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="truncate">Landlords</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-blue-400">{landlordCount}</div>
-          </div> */}
+          </div>
           <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm mb-1">
               <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -279,7 +292,7 @@ export default function AdminPage() {
         {/* Tabs & Search */}
         <div className="flex flex-col gap-3 sm:gap-4 mb-6">
           <div className="flex bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden w-full sm:w-fit">
-            {(['all', /* 'landlord', */ 'renter'] as TabFilter[]).map(tab => (
+            {(['all', 'landlord', 'renter'] as TabFilter[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -289,7 +302,7 @@ export default function AdminPage() {
                     : 'text-gray-400 hover:text-white hover:bg-gray-800'
                 }`}
               >
-                {tab === 'all' ? `All (${totalCount})` : /* tab === 'landlord' ? `Landlords (${landlordCount})` : */ `Renters (${renterCount})`}
+                {tab === 'all' ? `All (${totalCount})` : tab === 'landlord' ? `Landlords (${landlordCount})` : `Renters (${renterCount})`}
               </button>
             ))}
           </div>
@@ -352,46 +365,12 @@ export default function AdminPage() {
             {/* Mobile Card View */}
             <div className="md:hidden space-y-3">
               {filteredPilot.map(entry => (
-                <div key={entry.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-gray-500 text-xs">#{entry.position}</span>
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                          entry.role === 'landlord' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
-                        }`}>
-                          {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
-                        </span>
-                      </div>
-                      <p className="font-medium text-sm">{entry.name}</p>
-                      <p className="text-gray-400 text-xs truncate">{entry.email}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="col-span-2">
-                      <span className="text-gray-500">University:</span>
-                      <span className="ml-1 text-gray-300">{entry.university_name}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Code:</span>
-                      <code className="ml-1 bg-gray-800 px-1.5 py-0.5 rounded text-xs">{entry.referral_code}</code>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Referrals:</span>
-                      <span className="ml-1 text-purple-400 font-medium">{entry.referral_count}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">GDPR:</span>
-                      <span className={`ml-1 ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
-                        {entry.gdpr_consent ? 'Yes' : 'No'}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Joined:</span>
-                      <span className="ml-1 text-gray-300">{formatDate(entry.created_at)}</span>
-                    </div>
-                  </div>
-                </div>
+                <PilotMobileCard
+                  key={entry.id}
+                  entry={entry}
+                  expanded={expandedRow === entry.id}
+                  onToggle={() => setExpandedRow(prev => (prev === entry.id ? null : entry.id))}
+                />
               ))}
             </div>
 
@@ -415,33 +394,17 @@ export default function AdminPage() {
                     <th className="py-3 px-3 font-medium cursor-pointer hover:text-white" onClick={() => toggleSort('created_at')}>
                       Joined <SortIcon field="created_at" />
                     </th>
+                    <th className="py-3 px-3 font-medium">Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredPilot.map(entry => (
-                    <tr key={entry.id} className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors">
-                      <td className="py-3 px-3 text-gray-400">{entry.position}</td>
-                      <td className="py-3 px-3 font-medium">{entry.name}</td>
-                      <td className="py-3 px-3 text-gray-300">{entry.email}</td>
-                      <td className="py-3 px-3">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                          entry.role === 'landlord' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
-                        }`}>
-                          {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-gray-300 text-xs">{entry.university_name}</td>
-                      <td className="py-3 px-3">
-                        <span className={`text-xs ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
-                          {entry.gdpr_consent ? 'Consented' : 'No'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <code className="text-xs bg-gray-800 px-2 py-0.5 rounded">{entry.referral_code}</code>
-                      </td>
-                      <td className="py-3 px-3 text-gray-400">{entry.referral_count}</td>
-                      <td className="py-3 px-3 text-gray-400">{formatDate(entry.created_at)}</td>
-                    </tr>
+                    <PilotTableRow
+                      key={entry.id}
+                      entry={entry}
+                      expanded={expandedRow === entry.id}
+                      onToggle={() => setExpandedRow(prev => (prev === entry.id ? null : entry.id))}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -681,6 +644,155 @@ function DetailField({ label, value, isLink }: { label: string; value: string; i
       ) : (
         <div className="text-gray-200 break-all">{value}</div>
       )}
+    </div>
+  );
+}
+
+// ── Pilot Signup Components ───────────────────────────────────────────────
+
+function PilotMobileCard({ entry, expanded, onToggle }: { entry: PilotSignup; expanded: boolean; onToggle: () => void }) {
+  const hasDetails = entry.role === 'landlord' && entry.landlord_type;
+
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-gray-500 text-xs">#{entry.position}</span>
+            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+              entry.role === 'landlord' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
+            }`}>
+              {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
+            </span>
+          </div>
+          <p className="font-medium text-sm">{entry.name}</p>
+          <p className="text-gray-400 text-xs truncate">{entry.email}</p>
+        </div>
+        {hasDetails && (
+          <button
+            onClick={onToggle}
+            className="text-blue-400 hover:text-blue-300 transition-colors text-xs flex items-center gap-1 shrink-0"
+          >
+            {expanded ? 'Hide' : 'View'}
+            {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="col-span-2">
+          <span className="text-gray-500">University:</span>
+          <span className="ml-1 text-gray-300">{entry.university_name}</span>
+        </div>
+        {entry.phone_number && (
+          <div className="col-span-2">
+            <span className="text-gray-500">Phone:</span>
+            <span className="ml-1 text-gray-300">{entry.phone_number}</span>
+          </div>
+        )}
+        <div>
+          <span className="text-gray-500">Code:</span>
+          <code className="ml-1 bg-gray-800 px-1.5 py-0.5 rounded text-xs">{entry.referral_code}</code>
+        </div>
+        <div>
+          <span className="text-gray-500">Referrals:</span>
+          <span className="ml-1 text-purple-400 font-medium">{entry.referral_count}</span>
+        </div>
+        <div>
+          <span className="text-gray-500">GDPR:</span>
+          <span className={`ml-1 ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
+            {entry.gdpr_consent ? 'Yes' : 'No'}
+          </span>
+        </div>
+        <div>
+          <span className="text-gray-500">Joined:</span>
+          <span className="ml-1 text-gray-300">{formatDate(entry.created_at)}</span>
+        </div>
+      </div>
+
+      {expanded && entry.role === 'landlord' && (
+        <div className="mt-4 pt-4 border-t border-gray-800">
+          <PilotLandlordDetails entry={entry} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PilotTableRow({ entry, expanded, onToggle }: { entry: PilotSignup; expanded: boolean; onToggle: () => void }) {
+  const hasDetails = entry.role === 'landlord' && entry.landlord_type;
+
+  return (
+    <>
+      <tr className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors">
+        <td className="py-3 px-3 text-gray-400">{entry.position}</td>
+        <td className="py-3 px-3 font-medium">{entry.name}</td>
+        <td className="py-3 px-3 text-gray-300">{entry.email}</td>
+        <td className="py-3 px-3">
+          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+            entry.role === 'landlord' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
+          }`}>
+            {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
+          </span>
+        </td>
+        <td className="py-3 px-3 text-gray-300 text-xs">{entry.university_name}</td>
+        <td className="py-3 px-3">
+          <span className={`text-xs ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
+            {entry.gdpr_consent ? 'Consented' : 'No'}
+          </span>
+        </td>
+        <td className="py-3 px-3">
+          <code className="text-xs bg-gray-800 px-2 py-0.5 rounded">{entry.referral_code}</code>
+        </td>
+        <td className="py-3 px-3 text-gray-400">{entry.referral_count}</td>
+        <td className="py-3 px-3 text-gray-400">{formatDate(entry.created_at)}</td>
+        <td className="py-3 px-3">
+          {hasDetails ? (
+            <button
+              onClick={onToggle}
+              className="text-blue-400 hover:text-blue-300 transition-colors text-xs flex items-center gap-1"
+            >
+              {expanded ? 'Hide' : 'View'}
+              {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          ) : (
+            <span className="text-gray-600 text-xs">—</span>
+          )}
+        </td>
+      </tr>
+      {expanded && entry.role === 'landlord' && (
+        <tr className="border-b border-gray-800/50">
+          <td colSpan={10} className="px-3 py-4">
+            <div className="bg-gray-900/70 border border-gray-800 rounded-lg p-4">
+              <PilotLandlordDetails entry={entry} />
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
+function PilotLandlordDetails({ entry }: { entry: PilotSignup }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+      <DetailField label="Landlord Type" value={label(entry.landlord_type)} />
+      <DetailField label="Portfolio Size" value={entry.portfolio_size ? `${entry.portfolio_size} properties` : '—'} />
+      <DetailField label="Property Location" value={entry.property_location || '—'} />
+      <DetailField label="Deposit Scheme" value={label(entry.current_deposit_scheme)} />
+      <DetailField label="Scheme Provider" value={label(entry.deposit_scheme_provider)} />
+      <DetailField label="Uses PMS" value={entry.has_pms === true ? 'Yes' : entry.has_pms === false ? 'No' : '—'} />
+      <DetailField label="PRS Database" value={label(entry.prs_db_status)} />
+      <DetailField label="Web3 Familiarity" value={entry.web3_familiarity ? `${entry.web3_familiarity}/5` : '—'} />
+      <DetailField label="Phone Number" value={entry.phone_number || '—'} />
+      <DetailField label="LinkedIn / Website" value={entry.linkedin_website || '—'} isLink={!!entry.linkedin_website} />
+      <DetailField
+        label="Letter of Intent"
+        value={entry.letter_of_intent ? 'Confirmed' : 'Not confirmed'}
+      />
+      <DetailField
+        label="Biggest Headaches"
+        value={entry.biggest_headaches?.length ? entry.biggest_headaches.map(h => label(h)).join(', ') : '—'}
+      />
     </div>
   );
 }

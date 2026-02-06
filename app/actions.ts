@@ -79,10 +79,26 @@ export async function submitPilotSignup(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const role = formData.get('role') as 'landlord' | 'renter';
-  const universityName = formData.get('university_name') as string || 'University of Hertfordshire';
+  const universityName = formData.get('university_name') as string | null;
   const gdprConsent = formData.get('gdpr_consent') === 'true';
   const referralCode = formData.get('referralCode') as string | null;
   const origin = formData.get('origin') as string | null;
+
+  // Landlord-specific fields
+  const landlordType = formData.get('landlord_type') as string | null;
+  const portfolioSize = formData.get('portfolio_size') as string | null;
+  const propertyLocation = formData.get('property_location') as string | null;
+  const currentDepositScheme = formData.get('current_deposit_scheme') as string | null;
+  const depositSchemeProvider = formData.get('deposit_scheme_provider') as string | null;
+  const biggestHeadaches = formData.getAll('biggest_headaches') as string[];
+  const hasPmsValue = formData.get('has_pms');
+  const hasPms = hasPmsValue === 'true' ? true : hasPmsValue === 'false' ? false : null;
+  const prsDbStatus = formData.get('prs_db_status') as string | null;
+  const web3FamiliarityStr = formData.get('web3_familiarity') as string | null;
+  const web3Familiarity = web3FamiliarityStr ? parseInt(web3FamiliarityStr, 10) : null;
+  const phoneNumber = formData.get('phone_number') as string | null;
+  const linkedinWebsite = formData.get('linkedin_website') as string | null;
+  const letterOfIntent = formData.get('letter_of_intent') === 'true';
 
   if (!name || !email || !role) {
     return { error: 'Name, email, and role are required.' };
@@ -106,18 +122,61 @@ export async function submitPilotSignup(formData: FormData) {
       }
     }
 
+    // Build the insert object
+    const insertData: Record<string, unknown> = {
+      name,
+      email,
+      role,
+      gdpr_consent: gdprConsent,
+      referred_by: referredBy,
+    };
+
+    // Only add university_name for renters
+    if (universityName) {
+      insertData.university_name = universityName;
+    }
+
+    // Add landlord-specific fields if role is landlord
+    if (role === 'landlord') {
+      if (landlordType) insertData.landlord_type = landlordType;
+      if (portfolioSize) insertData.portfolio_size = portfolioSize;
+      if (propertyLocation) insertData.property_location = propertyLocation;
+      if (currentDepositScheme) insertData.current_deposit_scheme = currentDepositScheme;
+      if (depositSchemeProvider) insertData.deposit_scheme_provider = depositSchemeProvider;
+      if (biggestHeadaches.length > 0) insertData.biggest_headaches = biggestHeadaches;
+      if (hasPms !== null) insertData.has_pms = hasPms;
+      if (prsDbStatus) insertData.prs_db_status = prsDbStatus;
+      if (web3Familiarity !== null) insertData.web3_familiarity = web3Familiarity;
+      if (phoneNumber) insertData.phone_number = phoneNumber;
+      if (linkedinWebsite) insertData.linkedin_website = linkedinWebsite;
+      insertData.letter_of_intent = letterOfIntent;
+    }
+
     const { data, error } = await supabase
       .from('pilot_signups')
-      .insert([{ name, email, role, university_name: universityName, gdpr_consent: gdprConsent, referred_by: referredBy }])
+      .insert([insertData])
       .select('id, position, referral_code')
       .single();
 
     if (error) {
       console.error('Supabase Error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+
       if (error.code === '23505') {
         return { error: 'This email is already on the waitlist.' };
       }
-      return { error: 'Failed to join the pilot. Please try again.' };
+      if (error.code === '42P01') {
+        return { error: 'Database table not found. Please run the SQL migration.' };
+      }
+      if (error.code === '23503') {
+        return { error: 'Invalid referral code.' };
+      }
+      if (error.code === '23514') {
+        return { error: `Invalid field value: ${error.message}` };
+      }
+      return { error: `Failed to join the pilot: ${error.message}` };
     }
 
     const baseUrl = origin || 'http://localhost:3000';
@@ -128,6 +187,47 @@ export async function submitPilotSignup(formData: FormData) {
       position: data.position,
       referralCode: data.referral_code,
       referralLink,
+    };
+  } catch (err) {
+    console.error('Server Action Error:', err);
+    return { error: 'Something went wrong.' };
+  }
+}
+
+// ── Public Waitlist Stats (no personal details) ──────────────────────
+
+export async function fetchPublicWaitlistStats() {
+  try {
+    const { data, error } = await supabase
+      .from('pilot_signups')
+      .select('role, position, created_at, gdpr_consent, letter_of_intent, university_name')
+      .order('position', { ascending: true });
+
+    if (error) {
+      console.error('Supabase Error:', error);
+      return { error: 'Failed to fetch waitlist stats.' };
+    }
+
+    const entries = data || [];
+    const totalCount = entries.length;
+    const landlordCount = entries.filter(e => e.role === 'landlord').length;
+    const renterCount = entries.filter(e => e.role === 'renter').length;
+
+    // Return anonymized list with position, role, and consent info
+    const waitlist = entries.map(e => ({
+      position: e.position,
+      role: e.role,
+      joinedAt: e.created_at,
+      gdprConsent: e.gdpr_consent,
+      letterOfIntent: e.letter_of_intent,
+      university: e.university_name,
+    }));
+
+    return {
+      totalCount,
+      landlordCount,
+      renterCount,
+      waitlist,
     };
   } catch (err) {
     console.error('Server Action Error:', err);
