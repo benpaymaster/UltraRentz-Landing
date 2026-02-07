@@ -4,7 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-const PILOT_URL = "https://ultrarentz.vercel.app/#cta";
+const PILOT_URL = "https://ultrarentz.vercel.app/#pilot-signup";
 
 export default function QRPage() {
   return (

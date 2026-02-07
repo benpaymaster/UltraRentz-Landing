@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS pilot_signups (
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('landlord', 'renter')),
+  is_student BOOLEAN DEFAULT NULL,
   university_name TEXT DEFAULT NULL,
   gdpr_consent BOOLEAN NOT NULL DEFAULT false,
   referral_code TEXT UNIQUE NOT NULL,

@@ -54,7 +54,7 @@ const navItems = [
   },
   {
     name: "Join Pilot",
-    link: "#cta",
+    link: "#pilot-signup",
     icon: <Rocket className="w-4 h-4 text-white" />,
   },
 ];

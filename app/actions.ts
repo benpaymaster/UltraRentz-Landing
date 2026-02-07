@@ -79,6 +79,7 @@ export async function submitPilotSignup(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const role = formData.get('role') as 'landlord' | 'renter';
+  const isStudent = formData.get('is_student') as string | null;
   const universityName = formData.get('university_name') as string | null;
   const gdprConsent = formData.get('gdpr_consent') === 'true';
   const referralCode = formData.get('referralCode') as string | null;
@@ -131,9 +132,10 @@ export async function submitPilotSignup(formData: FormData) {
       referred_by: referredBy,
     };
 
-    // Only add university_name for renters
-    if (universityName) {
-      insertData.university_name = universityName;
+    // Add renter-specific fields
+    if (role === 'renter') {
+      if (isStudent) insertData.is_student = isStudent === 'yes';
+      if (universityName) insertData.university_name = universityName;
     }
 
     // Add landlord-specific fields if role is landlord
@@ -200,7 +202,7 @@ export async function fetchPublicWaitlistStats() {
   try {
     const { data, error } = await supabase
       .from('pilot_signups')
-      .select('role, position, created_at, gdpr_consent, letter_of_intent, university_name')
+      .select('role, position, created_at, gdpr_consent, letter_of_intent, is_student, university_name')
       .order('position', { ascending: true });
 
     if (error) {

@@ -10,7 +10,8 @@ interface PilotSignup {
   name: string;
   email: string;
   role: 'landlord' | 'renter';
-  university_name: string;
+  is_student?: boolean;
+  university_name?: string;
   gdpr_consent: boolean;
   referral_code: string;
   referral_count: number;
@@ -680,8 +681,14 @@ function PilotMobileCard({ entry, expanded, onToggle }: { entry: PilotSignup; ex
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="col-span-2">
-          <span className="text-gray-500">University:</span>
-          <span className="ml-1 text-gray-300">{entry.university_name}</span>
+          <span className="text-gray-500">Student:</span>
+          <span className="ml-1 text-gray-300">{entry.is_student ? 'Yes' : entry.is_student === false ? 'No' : '—'}</span>
+          {entry.university_name && (
+            <>
+              <span className="text-gray-500 ml-2">University:</span>
+              <span className="ml-1 text-gray-300">{entry.university_name}</span>
+            </>
+          )}
         </div>
         {entry.phone_number && (
           <div className="col-span-2">
@@ -734,7 +741,9 @@ function PilotTableRow({ entry, expanded, onToggle }: { entry: PilotSignup; expa
             {entry.role === 'landlord' ? 'Landlord' : 'Renter'}
           </span>
         </td>
-        <td className="py-3 px-3 text-gray-300 text-xs">{entry.university_name}</td>
+        <td className="py-3 px-3 text-gray-300 text-xs">
+          {entry.is_student ? (entry.university_name || 'Student') : entry.is_student === false ? 'Not a student' : '—'}
+        </td>
         <td className="py-3 px-3">
           <span className={`text-xs ${entry.gdpr_consent ? 'text-green-400' : 'text-red-400'}`}>
             {entry.gdpr_consent ? 'Consented' : 'No'}

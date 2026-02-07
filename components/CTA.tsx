@@ -17,7 +17,8 @@ export default function CTA() {
   const [role, setRole] = useState<"landlord" | "renter" | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [universityName, setUniversityName] = useState("University of Hertfordshire");
+  const [isStudent, setIsStudent] = useState<"yes" | "no" | "">("");
+  const [universityName, setUniversityName] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -49,6 +50,13 @@ export default function CTA() {
       const params = new URLSearchParams(window.location.search);
       const ref = params.get("ref");
       if (ref) setUrlReferralCode(ref);
+
+      // Re-scroll to this section after hydration if hash matches
+      if (window.location.hash === "#pilot-signup") {
+        setTimeout(() => {
+          document.getElementById("pilot-signup")?.scrollIntoView({ behavior: "smooth" });
+        }, 500);
+      }
     }
   }, []);
 
@@ -63,9 +71,12 @@ export default function CTA() {
     formData.append("gdpr_consent", String(gdprConsent));
     formData.append("origin", window.location.origin);
 
-    // Renter gets university fields
+    // Renter gets student/university fields
     if (role === "renter") {
-      formData.append("university_name", universityName);
+      formData.append("is_student", isStudent);
+      if (isStudent === "yes" && universityName.trim()) {
+        formData.append("university_name", universityName);
+      }
     }
 
     if (urlReferralCode) {
@@ -163,12 +174,12 @@ export default function CTA() {
   const canProceedStep4 = gdprConsent && letterOfIntent;
 
   // Renter validation
-  const canSubmitRenter = name.trim() && email.trim() && gdprConsent;
+  const canSubmitRenter = name.trim() && email.trim() && isStudent && gdprConsent;
 
   // ── Success Screen ──────────────────────────────────────────────────
   if (status === "success") {
     return (
-      <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
+      <section id="pilot-signup" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -261,7 +272,7 @@ export default function CTA() {
   // ── Role Selection ──────────────────────────────────────────────────
   if (!role) {
     return (
-      <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
+      <section id="pilot-signup" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="max-w-3xl mx-auto relative z-10">
@@ -317,7 +328,7 @@ export default function CTA() {
   // ── Renter Simple Form ──────────────────────────────────────────────
   if (role === "renter") {
     return (
-      <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
+      <section id="pilot-signup" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-600/10 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="max-w-lg mx-auto relative z-10">
@@ -350,27 +361,42 @@ export default function CTA() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">University Email *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                  placeholder="you@herts.ac.uk"
+                  placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">University Name *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Are you currently a student? *</label>
                 <select
-                  value={universityName}
-                  onChange={(e) => setUniversityName(e.target.value)}
+                  value={isStudent}
+                  onChange={(e) => setIsStudent(e.target.value as "yes" | "no" | "")}
                   className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
                 >
-                  <option value="University of Hertfordshire">University of Hertfordshire</option>
+                  <option value="">Select...</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
                 </select>
               </div>
+
+              {isStudent === "yes" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">University / College Name *</label>
+                  <input
+                    type="text"
+                    value={universityName}
+                    onChange={(e) => setUniversityName(e.target.value)}
+                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white transition focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    placeholder="e.g. University of Hertfordshire"
+                  />
+                </div>
+              )}
 
               {/* GDPR Consent */}
               <label className="flex items-start gap-3 p-4 bg-gray-950 border border-gray-800 rounded-xl cursor-pointer hover:border-gray-700 transition">
@@ -431,7 +457,7 @@ export default function CTA() {
 
   // ── Landlord Multi-Step Form ──────────────────────────────────────────────
   return (
-    <section id="cta" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
+    <section id="pilot-signup" className="py-24 px-4 md:px-12 bg-[#090b1a] relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-lg mx-auto relative z-10">
